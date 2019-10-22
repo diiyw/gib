@@ -1,8 +1,8 @@
 package template
 
 import (
-	"github.com/diiyw/goutils/cache"
-	"github.com/diiyw/goutils/strings"
+	"github.com/diiyw/gib/cache"
+	"github.com/diiyw/gib/strings"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 	"html/template"

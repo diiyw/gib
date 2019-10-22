@@ -3,7 +3,7 @@ package alioss
 import (
 	"bytes"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/diiyw/goutils/http"
+	"github.com/diiyw/gib/http"
 	"net/url"
 	"strings"
 	"time"

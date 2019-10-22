@@ -1,6 +1,6 @@
 package goutils
 
-import "github.com/diiyw/goutils/errors"
+import "github.com/diiyw/gib/errors"
 
 type Response struct {
 	Code    int         `json:"code"`

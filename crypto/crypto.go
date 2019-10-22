@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"github.com/diiyw/goutils/times"
+	"github.com/diiyw/gib/times"
 	"time"
 )
 
