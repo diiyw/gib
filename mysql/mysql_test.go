@@ -14,12 +14,11 @@ func TestNewMysql(t *testing.T) {
 
 	my = my.Table("test")
 
-	my.Where("id=?")
-	assert(my.BindData(1).Sql(), "SELECT * FROM test WHERE  id=?")
+	my.Where("id", "=", 1)
+	assert(my.Sql(), "SELECT * FROM test WHERE  id=?")
 
-	my.Reset()
-	my.Where("id=?", "AND name=?")
-	assert(my.BindData(1).Sql(), "SELECT * FROM test WHERE  id=? AND name=?")
+	my.Where("name", "=", "john")
+	assert(my.Sql(), "SELECT * FROM test WHERE  id=? AND name=?")
 }
 
 func assert(sql, eq string) {

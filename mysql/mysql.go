@@ -93,7 +93,7 @@ func (my *Mysql) Count(column string) (int, error) {
 
 	my.builder.typ = Select("count(" + column + ")")
 
-	sqlStr := my.builder.make()
+	sqlStr := my.Sql()
 	stmt, err := my.db.Prepare(sqlStr)
 	if err != nil {
 		return 0, err
@@ -110,7 +110,7 @@ func (my *Mysql) Find(v []interface{}) error {
 
 	my.builder.typ = Select("*")
 
-	sqlStr := my.builder.make()
+	sqlStr := my.Sql()
 	stmt, err := my.db.Prepare(sqlStr)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func (my *Mysql) FindOne(r interface{}) error {
 
 	my.builder.typ = Select("*")
 
-	sqlStr := my.builder.make()
+	sqlStr := my.Sql()
 	stmt, err := my.db.Prepare(sqlStr)
 	if err != nil {
 		return err
@@ -189,7 +189,7 @@ func (my *Mysql) Update(data map[string]interface{}) (int64, error) {
 }
 
 func (my *Mysql) exec() (sql.Result, error) {
-	sqlStr := my.builder.make()
+	sqlStr := my.Sql()
 	stmt, err := my.db.Prepare(sqlStr)
 	if err != nil {
 		return nil, err
@@ -200,6 +200,10 @@ func (my *Mysql) exec() (sql.Result, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (my *Mysql) Sql() string {
+	return my.builder.make()
 }
 
 func (my *Mysql) Prepare(query string) (*sql.Stmt, error) {

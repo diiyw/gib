@@ -1,4 +1,4 @@
-package goutils
+package restful
 
 import "github.com/diiyw/gib/errors"
 

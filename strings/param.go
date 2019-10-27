@@ -1,7 +1,7 @@
 package strings
 
 import (
-	"github.com/diiyw/gib/times"
+	"/times"
 	"github.com/labstack/echo/v4"
 	"net/url"
 	"strconv"
