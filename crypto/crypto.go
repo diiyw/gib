@@ -54,6 +54,10 @@ func DesDecrypt(cryptData []byte, key []byte) ([]byte, error) {
 		return nil, ContentError
 	}
 	t, err := time.Parse(times.DateFormat, string(bb[1]))
+
+	if err != nil {
+		return nil, err
+	}
 	if t.Before(time.Now()) {
 		return nil, Timeout
 	}

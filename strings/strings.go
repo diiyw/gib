@@ -43,7 +43,6 @@ func UrlDecode(s string) string {
 }
 
 func ToLower(s string) string {
-
 	// 小写
 	return strings.ToLower(s)
 }

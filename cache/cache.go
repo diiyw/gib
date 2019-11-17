@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// 简单的内存缓存实现
 type data struct {
 	// 过期时间
 	created time.Time

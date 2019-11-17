@@ -9,13 +9,13 @@ type Logger struct {
 	driver *zap.Logger
 }
 
-var Interface = new(Logger)
+var DefaultInterface = new(Logger)
 
 func init() {
-	if Interface.driver != nil {
+	if DefaultInterface.driver != nil {
 		return
 	}
-	Interface = NewLogger()
+	DefaultInterface = NewLogger()
 }
 
 func NewLogger() *Logger {
