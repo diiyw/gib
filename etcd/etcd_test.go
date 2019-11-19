@@ -8,8 +8,8 @@ import (
 )
 
 func TestNewEtcd(t *testing.T) {
-	etcd := NewEtcd([]string{"localhost:2379"})
-	getResp, err := etcd.Kv.Get(context.TODO(), "hello")
+	e := NewEtcd([]string{"localhost:2379"})
+	getResp, err := e.Kv.Get(context.TODO(), "hello")
 	if err != nil {
 		t.Error(err)
 	}
@@ -17,8 +17,8 @@ func TestNewEtcd(t *testing.T) {
 }
 
 func TestEtcd_RegisterService(t *testing.T) {
-	etcd := NewEtcd([]string{"localhost:2379"})
-	if err := etcd.RegisterService("nodes", "001"); err != nil {
+	e := NewEtcd([]string{"localhost:2379"})
+	if err := e.RegisterService("nodes", "001"); err != nil {
 		t.Error(err)
 	}
 	fmt.Println("start lease...")
@@ -27,6 +27,6 @@ func TestEtcd_RegisterService(t *testing.T) {
 }
 
 func TestEtcd_WatchService(t *testing.T) {
-	etcd := NewEtcd([]string{"localhost:2379"})
-	etcd.WatchService("sync/nodes")
+	e := NewEtcd([]string{"localhost:2379"})
+	e.WatchService("sync/nodes")
 }

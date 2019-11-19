@@ -10,6 +10,11 @@ import (
 
 var mongoClients = make(map[string]*mongo.Client, 0)
 
+type MgoConfig struct {
+	Uri string `yaml:"uri"`
+	DB  string `yaml:"db"`
+}
+
 func NewMongo(uri string, passwordSet bool) (*mongo.Client, error) {
 
 	if client, ok := mongoClients[uri]; ok {

@@ -5,8 +5,8 @@ import (
 )
 
 func TestNewMysql(t *testing.T) {
-	DefaultOptions.Db = "test"
-	my, err := NewMysql(DefaultOptions)
+	DefaultDBConfig.Db = "test"
+	my, err := NewMysql(DefaultDBConfig)
 	if err != nil {
 		t.Error(err)
 		return

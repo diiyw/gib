@@ -6,15 +6,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Options struct {
-	User     string
-	Password string
-	Host     string
-	Port     string
-	Db       string
+type DBConfig struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Db       string `yaml:"db"`
 }
 
-var DefaultOptions = Options{
+var DefaultDBConfig = DBConfig{
 	User:     "root",
 	Password: "",
 	Host:     "127.0.0.1",
@@ -22,7 +22,7 @@ var DefaultOptions = Options{
 	Db:       "",
 }
 
-func (op Options) String() string {
+func (op DBConfig) String() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", op.User, op.Password, op.Host, op.Port, op.Db)
 }
 
@@ -32,8 +32,8 @@ type Mysql struct {
 	prevBuilder *Builder
 }
 
-func NewMysql(op Options) (*Mysql, error) {
-	db, err := sql.Open("mysql", op.String())
+func NewMysql(c DBConfig) (*Mysql, error) {
+	db, err := sql.Open("mysql", c.String())
 	if err != nil {
 		return nil, err
 	}
