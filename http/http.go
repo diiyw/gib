@@ -41,17 +41,23 @@ func Get(apiUrl string, params url.Values) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func Post(apiUrl string, params url.Values) ([]byte, error) {
+func Post(apiUrl string, params string, headers map[string]string) ([]byte, error) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", apiUrl, strings.NewReader(params.Encode()))
+	req, err := http.NewRequest("POST", apiUrl, strings.NewReader(params))
 	if err != nil {
 		return nil, fmt.Errorf("http post error: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", DefaultAgent)
+
+	if headers != nil {
+		for name, value := range headers {
+			req.Header.Set(name, value)
+		}
+	}
 
 	resp, err := client.Do(req)
 

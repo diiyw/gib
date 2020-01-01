@@ -1,10 +1,11 @@
-package times
+package strings
 
 import "time"
 
 const (
-	DateFormat = "2006-01-02"
-	ZeroTime   = "0000-00-00 00:00:00"
+	DateFormat     = "2006-01-02"
+	DateTimeFormat = "2006-01-02 15:04:05"
+	ZeroTime       = "0000-00-00 00:00:00"
 )
 
 const (
@@ -14,6 +15,10 @@ const (
 
 func NowDate() string {
 	return time.Now().Format(DateFormat)
+}
+
+func NowDateTime() string {
+	return time.Now().Format(DateTimeFormat)
 }
 
 func Yesterday() time.Time {

@@ -2,11 +2,13 @@ package template
 
 import (
 	"github.com/diiyw/gib/cache"
-	"github.com/diiyw/gib/strings"
+	"github.com/diiyw/gib/str"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
+	"net/http"
+	"path"
 )
 
 type Template struct {
@@ -39,6 +41,16 @@ func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.C
 
 	var err error
 
+	if name == "" || name == "/" {
+		name = "/index.html"
+	}
+
+	ext := path.Ext(name)
+
+	if ext == "" {
+		name += ".html"
+	}
+
 	tpl.Driver = tpl.Driver.Funcs(template.FuncMap{
 		"pathContain": func(path, name string) string {
 			if c.Path() == path {
@@ -60,7 +72,7 @@ func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.C
 	if err := tpl.ParseFiles(tpl.Files); err != nil {
 		panic(err)
 	}
-	content, err := tpl.Box.FindString("files/" + name + ".html")
+	content, err := tpl.Box.FindString(name)
 	if err != nil {
 		return err
 	}
@@ -87,4 +99,18 @@ func (tpl *Template) ParseFiles(files []string) error {
 		}
 	}
 	return nil
+}
+
+// WrapHtmlStaticHandler 静态网页服务
+func WrapHtmlStaticHandler(h http.Handler) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		ext := path.Ext(c.Request().URL.Path)
+
+		if ext == "" {
+			c.Request().URL.Path += ".html"
+		}
+		h.ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
 }

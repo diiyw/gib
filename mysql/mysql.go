@@ -1,9 +1,9 @@
 package mysql
 
 import (
-	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type DBConfig struct {
@@ -12,200 +12,35 @@ type DBConfig struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Db       string `yaml:"db"`
+	Charset  string `yaml:"charset"`
+	Prefix   string `yaml:"prefix"`
 }
 
-var DefaultDBConfig = DBConfig{
+var DefaultDbConfig = DBConfig{
 	User:     "root",
 	Password: "",
 	Host:     "127.0.0.1",
 	Port:     "3306",
 	Db:       "",
+	Charset:  "utf8",
 }
 
 func (op DBConfig) String() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", op.User, op.Password, op.Host, op.Port, op.Db)
+
+	if op.Charset == "" {
+		op.Charset = "utf8"
+	}
+	return fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", op.User, op.Password, op.Host, op.Port, op.Db, op.Charset)
 }
 
 type Mysql struct {
-	db          *sql.DB
-	builder     *Builder
-	prevBuilder *Builder
+	*gorm.DB
 }
 
 func NewMysql(c DBConfig) (*Mysql, error) {
-	db, err := sql.Open("mysql", c.String())
+	db, err := gorm.Open("mysql", c.String())
 	if err != nil {
 		return nil, err
 	}
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-
-	return &Mysql{db: db, builder: new(Builder), prevBuilder: nil}, nil
-}
-
-func (my *Mysql) Table(table string) *Mysql {
-	my.builder.table = Table(table, "")
-	return my
-}
-
-func (my *Mysql) TableWithAlias(table, alias string) *Mysql {
-	my.builder.table = Table(table, alias)
-	return my
-}
-
-func (my *Mysql) LeftJoin(table, column, op, nextColumn string) *Mysql {
-	my.builder.join = append(my.builder.join, LeftJoin(Table(table, ""), On(column, op, nextColumn)))
-	return my
-}
-
-func (my *Mysql) Where(column, op string, bindValue interface{}) *Mysql {
-	my.builder.cond = append(my.builder.cond, And(column, op, bindValue))
-	return my
-}
-
-func (my *Mysql) WhereOr(column, op string, bindValue interface{}) *Mysql {
-	my.builder.cond = append(my.builder.cond, Or(column, op, bindValue))
-	return my
-}
-
-func (my *Mysql) WhereBetween(column, start, end string) *Mysql {
-	my.builder.cond = append(my.builder.cond, AndBetween(column, []string{start, end}))
-	return my
-}
-
-func (my *Mysql) WhereOrBetween(column, start, end string) *Mysql {
-	my.builder.cond = append(my.builder.cond, OrBetween(column, []string{start, end}))
-	return my
-}
-
-func (my *Mysql) GroupBy(by ...string) *Mysql {
-	my.builder.groupBy = append(my.builder.groupBy, by...)
-	return my
-}
-
-func (my *Mysql) OrderBy(by ...string) *Mysql {
-	my.builder.orderBy = append(my.builder.orderBy, by...)
-	return my
-}
-
-func (my *Mysql) Count(column string) (int, error) {
-
-	my.builder.typ = Select("count(" + column + ")")
-
-	sqlStr := my.Sql()
-	stmt, err := my.db.Prepare(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-
-	var count int
-	if err := stmt.QueryRow(my.builder.bindValues).Scan(&count); err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func (my *Mysql) Find(v []interface{}) error {
-
-	my.builder.typ = Select("*")
-
-	sqlStr := my.Sql()
-	stmt, err := my.db.Prepare(sqlStr)
-	if err != nil {
-		return err
-	}
-
-	rows, err := stmt.Query(my.builder.bindValues)
-	if err != nil {
-		return err
-	}
-	var r = -1
-	for rows.Next() {
-		r++
-		if err := rows.Scan(v[r]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (my *Mysql) FindOne(r interface{}) error {
-
-	my.builder.typ = Select("*")
-
-	sqlStr := my.Sql()
-	stmt, err := my.db.Prepare(sqlStr)
-	if err != nil {
-		return err
-	}
-
-	row := stmt.QueryRow(my.builder.bindValues)
-	return row.Scan(r)
-}
-
-func (my *Mysql) Insert(data map[string]interface{}) (int64, error) {
-
-	my.builder.typ = Insert(data)
-
-	result, err := my.exec()
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
-}
-
-func (my *Mysql) ReplaceInto(data map[string]interface{}) (int64, error) {
-
-	my.builder.typ = ReplaceInto(data)
-
-	result, err := my.exec()
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
-}
-
-func (my *Mysql) Remove() (int64, error) {
-
-	my.builder.typ = Delete()
-
-	result, err := my.exec()
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-func (my *Mysql) Update(data map[string]interface{}) (int64, error) {
-
-	my.builder.typ = Update(data)
-
-	result, err := my.exec()
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-func (my *Mysql) exec() (sql.Result, error) {
-	sqlStr := my.Sql()
-	stmt, err := my.db.Prepare(sqlStr)
-	if err != nil {
-		return nil, err
-	}
-
-	result, err := stmt.Exec(my.builder.bindValues)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (my *Mysql) Sql() string {
-	return my.builder.make()
-}
-
-func (my *Mysql) Prepare(query string) (*sql.Stmt, error) {
-	return my.db.Prepare(query)
+	return &Mysql{DB: db}, nil
 }

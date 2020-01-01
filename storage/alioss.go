@@ -1,4 +1,4 @@
-package alioss
+package storage
 
 import (
 	"bytes"

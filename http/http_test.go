@@ -28,7 +28,7 @@ func TestGet(t *testing.T) {
 func TestPost(t *testing.T) {
 	var params = url.Values{}
 	params.Add("first", "1")
-	b, err := Post("http://httpbin.org/post", params)
+	b, err := Post("http://httpbin.org/post", params.Encode(), nil)
 	if err != nil {
 		t.Error(err)
 	}

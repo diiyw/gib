@@ -8,14 +8,10 @@ import (
 
 func YamlConfig(name string, conf interface{}) error {
 
-	dir := os.Getenv("APP_PATH")
-	if dir == "" {
-		dir = "conf/"
-	} else {
-		dir += "conf/"
+	dir, err := os.Getwd()
+	if err != nil {
+		return err
 	}
-
-	_ = os.Setenv("CONFIG_PATH", dir)
 
 	mode := os.Getenv("APP_MODE")
 	if mode == "" {

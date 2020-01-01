@@ -65,3 +65,13 @@ func (c *Cache) Exits(key string) bool {
 	}
 	return false
 }
+
+// 获取键值的过期时间
+func (c *Cache) GetTTL(key string) int {
+	if v, ok := c.keyValue.Load(key); ok {
+
+		left := v.(*data).created.Add(v.(*data).expired).Sub(time.Now()).Seconds()
+		return int(left)
+	}
+	return 0
+}
