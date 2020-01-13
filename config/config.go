@@ -8,9 +8,13 @@ import (
 
 func YamlConfig(name string, conf interface{}) error {
 
-	dir, err := os.Getwd()
-	if err != nil {
-		return err
+	path := os.Getenv("CONFIG_PATH")
+	if path == "" {
+		dir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		path = dir + "/conf"
 	}
 
 	mode := os.Getenv("APP_MODE")
@@ -18,7 +22,7 @@ func YamlConfig(name string, conf interface{}) error {
 		mode = "dev"
 	}
 
-	b, err := ioutil.ReadFile(dir + name + "." + mode + ".yml")
+	b, err := ioutil.ReadFile(path + "/" + name + "." + mode + ".yml")
 	if err == nil {
 		if err := yaml.Unmarshal(b, conf); err != nil {
 			return err
