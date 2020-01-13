@@ -8,7 +8,7 @@ require (
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.18+incompatible
-	github.com/coreos/go-systemd v0.0.0-00010101000000-000000000000 // indirect
+	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/etcd-io/etcd v3.3.18+incompatible
 	github.com/gobuffalo/packr/v2 v2.7.1
@@ -44,5 +44,3 @@ require (
 	gopkg.in/yaml.v2 v2.2.7
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
-
-replace github.com/coreos/go-systemd => github.com/coreos/go-systemd/v22 v22.0.0
