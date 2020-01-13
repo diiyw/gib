@@ -26,5 +26,5 @@ func FormUnixTime(name string, c echo.Context) time.Time {
 
 func DateTime(name string, c echo.Context) time.Time {
 	v := c.Param(name)
-	return ParseTime(strings.DateFormat, v)
+	return ParseTime(DateFormat, v)
 }
