@@ -1,16 +1,17 @@
 package template
 
 import (
+	"html/template"
+	"io"
+	"path"
+
 	"github.com/diiyw/gib/cache"
 	"github.com/diiyw/gib/strings"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
-	"html/template"
-	"io"
-	"net/http"
-	"path"
 )
 
+// Template 模板
 type Template struct {
 	Box    *packr.Box
 	Driver *template.Template
@@ -20,7 +21,7 @@ type Template struct {
 	Files  []string
 }
 
-// 创建模板引擎
+// New 创建模板引擎
 func New(box *packr.Box, files ...string) *Template {
 	t := &Template{Box: box, Cache: cache.New(), Prefix: "template-", Files: files}
 
@@ -29,14 +30,14 @@ func New(box *packr.Box, files ...string) *Template {
 	return t
 }
 
-// 注册函数
+// FuncMap 注册函数
 func (tpl *Template) FuncMap(name string, fn interface{}) {
 	tpl.Driver.Funcs(template.FuncMap{
 		name: fn,
 	})
 }
 
-// 模板渲染接口
+// Render 模板渲染接口
 func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 
 	var err error
@@ -86,7 +87,7 @@ func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.C
 	return t.Execute(w, data)
 }
 
-// 解析通用模板
+// ParseFiles 解析通用模板
 func (tpl *Template) ParseFiles(files []string) error {
 	for _, file := range files {
 		s, err := tpl.Box.FindString(file)
@@ -99,18 +100,4 @@ func (tpl *Template) ParseFiles(files []string) error {
 		}
 	}
 	return nil
-}
-
-// WrapHtmlStaticHandler 静态网页服务
-func WrapHtmlStaticHandler(h http.Handler) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		ext := path.Ext(c.Request().URL.Path)
-
-		if ext == "" {
-			c.Request().URL.Path += ".html"
-		}
-		h.ServeHTTP(c.Response(), c.Request())
-		return nil
-	}
 }
