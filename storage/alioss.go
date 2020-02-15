@@ -33,7 +33,7 @@ func (o *AliOss) UploadFromURL(imgURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	img, err := http.Get(imgURL, nil)
+	img, err := http.Do(http.Url(imgURL))
 	if err != nil {
 		return nil, err
 	}

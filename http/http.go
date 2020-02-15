@@ -1,76 +1,34 @@
 package http
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
-var (
-	DefaultAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
-)
-
-func Get(apiUrl string, params url.Values) ([]byte, error) {
-	// var Url *url.URL
-	u, err := url.Parse(apiUrl)
-	if err != nil {
-		return nil, fmt.Errorf("url parse error: \r\n %v", err)
-	}
-	// URLEncode
-	u.RawQuery = params.Encode()
-
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", u.String(), strings.NewReader(""))
-
-	if err != nil {
-		return nil, fmt.Errorf("http get error: %v", err)
-	}
-
-	req.Header.Set("User-Agent", DefaultAgent)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	return ioutil.ReadAll(resp.Body)
+type Client struct {
+	*http.Client
+	*http.Request
 }
 
-func Post(apiUrl string, params string, headers map[string]string) ([]byte, error) {
+var defaultClient = new(Client)
 
-	client := &http.Client{}
+func Do(options ...Option) ([]byte, error) {
 
-	req, err := http.NewRequest("POST", apiUrl, strings.NewReader(params))
-	if err != nil {
-		return nil, fmt.Errorf("http post error: %v", err)
-	}
+	defaultClient.Client = new(http.Client)
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("User-Agent", DefaultAgent)
+	defaultClient.Request, _ = http.NewRequest("GET", "http://127.0.0.1/", nil)
 
-	if headers != nil {
-		for name, value := range headers {
-			req.Header.Set(name, value)
+	defaultClient.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36")
+
+	for _, option := range options {
+		if err := option(defaultClient); err != nil {
+			return nil, err
 		}
 	}
 
-	resp, err := client.Do(req)
-
+	resp, err := defaultClient.Do(defaultClient.Request)
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("http post error:  %v", err)
-	}
-
-	return body, nil
+	return ioutil.ReadAll(resp.Body)
 }

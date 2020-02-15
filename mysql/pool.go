@@ -35,7 +35,9 @@ func Init() error {
 		var err error
 		if _, ok := connPool[name]; !ok {
 			if connPool[name], err = NewMysql(c); err != nil {
-				return errors.New(-255, "Get mysql connection:"+err.Error())
+				return errors.Throw(
+					errors.WrapString("Get mysql connection:", err),
+				)
 			}
 			if c.Prefix != "" {
 				gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
