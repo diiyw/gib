@@ -3,8 +3,8 @@ package echo
 import "github.com/labstack/echo/v4"
 
 type Action struct {
-	Group       string
-	Middlewares []echo.MiddlewareFunc
+	Group      string
+	Middleware []echo.MiddlewareFunc
 }
 
 func (action *Action) Get(e echo.Context) error {

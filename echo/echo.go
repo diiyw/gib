@@ -6,7 +6,8 @@ import (
 
 type App struct {
 	*echo.Echo
-	Addr string
+	Addr  string
+	Query *Query
 }
 
 var DefaultApp = &App{

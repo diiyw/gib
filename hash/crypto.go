@@ -1,4 +1,4 @@
-package crypto
+package hash
 
 import (
 	"bytes"
@@ -12,8 +12,10 @@ import (
 	"time"
 )
 
-var ContentError = errors.New("content error")
-var Timeout = errors.New("timeout")
+var (
+	ContentError = errors.New("content error")
+	Timeout      = errors.New("timeout")
+)
 
 func MD5(in string) string {
 	h := md5.New()

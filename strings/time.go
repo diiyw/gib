@@ -8,16 +8,13 @@ const (
 	ZeroTime       = "0000-00-00 00:00:00"
 )
 
-const (
-	FiveTimeout   = 5 * time.Second
-	ThirtyTimeout = 30 * time.Second
-)
-
-func NowDate() string {
+// Date return now date
+func Date() string {
 	return time.Now().Format(DateFormat)
 }
 
-func NowDateTime() string {
+// DateTime return string datetime
+func DateTime() string {
 	return time.Now().Format(DateTimeFormat)
 }
 
