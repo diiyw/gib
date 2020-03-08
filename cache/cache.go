@@ -31,7 +31,7 @@ func (c *Cache) Set(key string, value interface{}) {
 func (c *Cache) Get(key string) interface{} {
 
 	if v, ok := c.keyValue.Load(key); ok {
-		if v.(*data).created.Add(v.(*data).expired).Before(time.Now()) {
+		if v.(*data).created.Add(v.(*data).expired).Before(time.Now()) && v.(*data).expired != -1 {
 			c.keyValue.Delete(key)
 			return nil
 		}

@@ -45,3 +45,9 @@ func Socket(sock string) Option {
 		o.dsn = strings.Replace(o.dsn, "tcp", "unix", -1)
 	}
 }
+
+func DSN(dsn string) Option {
+	return func(o *Orm) {
+		o.dsn = dsn
+	}
+}

@@ -1,14 +1,13 @@
 package orm
 
 import (
+	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
-var pool map[string]*Orm
-
 type Orm struct {
-	*gorm.DB
+	*sql.DB
 	driver string
 	dsn    string
 }
@@ -20,9 +19,21 @@ func Open(options ...Option) (orm *Orm, err error) {
 	for _, op := range options {
 		op(orm)
 	}
-	db, err := gorm.Open(orm.driver, orm.dsn)
+	db, err := sql.Open(orm.driver, orm.dsn)
 	if err != nil {
 		return nil, err
 	}
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
 	return &Orm{DB: db}, nil
+}
+
+type Model struct {
+
+	ID       int       `db:"id"`
+	CreateAt time.Time `db:"create_at"`
+	UpdateAt time.Time `db:"update_at"`
+	DeleteAt time.Time `db:"delete_at"`
+	Status   int       `db:"status"`
 }

@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func Format(s string, types ...Type) string {
-	for _, t := range types {
-		s = t(s)
+func Format(s string, formatters ...Formatter) string {
+	for _, f := range formatters {
+		s = f(s)
 	}
 	return s
 }

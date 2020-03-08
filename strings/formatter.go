@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-type Type func(s string) string
+type Formatter func(s string) string
 
-func TrimSpace() Type {
+func TrimSpace() Formatter {
 	return func(s string) string {
 		return strings.TrimSpace(s)
 	}
 }
 
-func TrimHtml() Type {
+func TrimHtml() Formatter {
 	return func(s string) string {
 		// HTML标签全转换成小写
 		re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
@@ -38,7 +38,7 @@ func TrimHtml() Type {
 	}
 }
 
-func Cut(n int) Type {
+func Cut(n int) Formatter {
 
 	return func(s string) string {
 		r := []rune(s)
@@ -50,21 +50,21 @@ func Cut(n int) Type {
 }
 
 // Url编码
-func UrlEncode() Type {
+func UrlEncode() Formatter {
 	return func(s string) string {
 		return url.QueryEscape(s)
 	}
 }
 
 // Url解码
-func UrlDecode() Type {
+func UrlDecode() Formatter {
 	return func(s string) string {
 		s, _ = url.QueryUnescape(s)
 		return s
 	}
 }
 
-func ToLower() Type {
+func ToLower() Formatter {
 	return func(s string) string {
 		return strings.ToLower(s)
 	}

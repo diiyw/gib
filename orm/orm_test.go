@@ -14,3 +14,7 @@ func TestOpen(t *testing.T) {
 	}
 	_ = orm
 }
+
+type Test struct {
+	v interface{}
+}
