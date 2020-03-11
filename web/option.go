@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -25,5 +26,12 @@ func CORS(allowOrigins, allowMethods []string) Option {
 			AllowOrigins: allowOrigins,
 			AllowMethods: allowMethods,
 		}))
+	}
+}
+
+func Prometheus(name string, customMetricsList ...[]*prometheus.Metric) Option {
+	return func(app *App) {
+		p := prometheus.NewPrometheus(name, nil, customMetricsList...)
+		p.Use(app.Echo)
 	}
 }
