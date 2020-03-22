@@ -2,12 +2,13 @@ package template
 
 import (
 	"github.com/diiyw/gib/cache"
-	"github.com/diiyw/gib/strings"
+	"github.com/diiyw/gib/text"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
 	"path"
+	"regexp"
 	"time"
 )
 
@@ -62,23 +63,21 @@ func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.C
 	}
 
 	tpl.Template = tpl.Funcs(template.FuncMap{
-		"pathContain": func(path, name string) string {
-			if c.Request().RequestURI == path {
-				return name
-			}
-			if path != "/" && strings.Has(c.Request().RequestURI, path) {
-				return name
+		"pathContain": func(path, name string) template.HTML {
+			re := regexp.MustCompile(path)
+			if re.MatchString(c.Request().RequestURI) {
+				return template.HTML(name)
 			}
 			return ""
 		},
 		"paramsContain": func(param, value, name string) string {
-			if strings.Format(param, strings.UrlDecode()) == value {
+			if text.Format(param, text.UrlDecode()) == value {
 				return name
 			}
 			return ""
 		},
 		"datetime": func(t time.Time) string {
-			return t.Format(strings.DateTimeFormat)
+			return t.Format(text.DateTimeFormat)
 		},
 		"html": func(c string) template.HTML {
 			return template.HTML(c)

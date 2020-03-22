@@ -2,7 +2,7 @@ package log
 
 import (
 	"encoding/json"
-	"github.com/diiyw/gib/strings"
+	"github.com/diiyw/gib/text"
 	"log"
 	"os"
 	"strconv"
@@ -72,8 +72,8 @@ func File(v interface{}, options ...Option) {
 	logger := new(FileLogger)
 	logger.Size = 1024 * 1024 * 100
 	logger.Dir = "logs"
-	logger.Filename = strings.Date()
-	logger.Datetime = strings.DateTime()
+	logger.Filename = text.Date()
+	logger.Datetime = text.DateTime()
 	logger.Message = v
 	logger.Time = time.Now().UnixNano()
 	for _, op := range options {

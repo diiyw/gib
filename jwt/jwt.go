@@ -1,19 +1,23 @@
 package jwt
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/diiyw/gib/hash"
+	"github.com/diiyw/gib/web"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var jwToken *jwt.Token
+var JWToken *jwt.Token
 
 var key string
 
+type MapClaims = jwt.MapClaims
+
 func init() {
-	if jwToken == nil {
-		jwToken = jwt.New(jwt.SigningMethodHS256)
+	if JWToken == nil {
+		JWToken = jwt.New(jwt.SigningMethodHS256)
 	}
 	if key == "" {
 		key = hash.MD5(hash.UUID())
@@ -22,10 +26,10 @@ func init() {
 
 func GetToken(options ...Option) (string, error) {
 	for _, op := range options {
-		op(jwToken)
+		op(JWToken)
 	}
 	// Generate encoded token and send it as response.
-	t, err := jwToken.SignedString([]byte(key))
+	t, err := JWToken.SignedString([]byte(key))
 	if err != nil {
 		return "", err
 	}
@@ -34,4 +38,13 @@ func GetToken(options ...Option) (string, error) {
 
 func Middleware() echo.MiddlewareFunc {
 	return middleware.JWT([]byte(key))
+}
+
+func GetMapClaims(c web.Context) (MapClaims, error) {
+	u := c.Get("user")
+	user, ok := u.(*jwt.Token)
+	if !ok {
+		return nil, errors.New("token occupied")
+	}
+	return user.Claims.(MapClaims), nil
 }
