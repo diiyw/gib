@@ -16,6 +16,6 @@ func UserAgent(ua string) Option {
 
 func WithDOM(dom DOM) Option {
 	return func(finder *Finder) {
-		finder.DOM = append(finder.DOM, dom)
+		finder.Groups["body"] = append(finder.Groups["body"], dom)
 	}
 }

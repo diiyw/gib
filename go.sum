@@ -71,8 +71,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
-github.com/diiyw/h2md v0.1.5 h1:PYoo40zDhejIndVXaRjI+Q2L4oK6EgH8xyWfl+WxMU8=
-github.com/diiyw/h2md v0.1.5/go.mod h1:2Yx4JXkSLgvvzbNr8rMMVilvaHqevfKpgxu3iLbal3w=
+github.com/diiyw/h2md v0.1.6 h1:qR2XukQQHyoBItU1km1raYgX0hlDAWN+7D+g+UyemKw=
+github.com/diiyw/h2md v0.1.6/go.mod h1:2Yx4JXkSLgvvzbNr8rMMVilvaHqevfKpgxu3iLbal3w=
 github.com/edsrzf/mmap-go v0.0.0-20170320065105-0bce6a688712/go.mod h1:YO35OhQPt3KJa3ryjFM5Bs14WD66h8eGKpfaBNrHW5M=
 github.com/elazarl/go-bindata-assetfs v1.0.0/go.mod h1:v+YaWX3bdea5J/mo8dSETolEo7R71Vk1u8bnjau5yw4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=

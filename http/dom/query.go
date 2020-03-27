@@ -1,19 +1,18 @@
 package dom
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"net/url"
 )
 
 type Finder struct {
-	Link      string `json:"link"`
-	UserAgent string `json:"user_agent"`
-	DOM       []DOM  `json:"dom"`
+	Link      string           `json:"link"`
+	UserAgent string           `json:"user_agent"`
+	Groups    map[string][]DOM `json:"groups"`
 }
 
-func (finder *Finder) Query(options ...Option) (result map[string][]string, err error) {
-	result = make(map[string][]string, 0)
+func (finder *Finder) Query(options ...Option) (result []map[string]string, err error) {
+	result = make([]map[string]string, 0)
 	finder.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
 
 	for _, op := range options {
@@ -30,24 +29,26 @@ func (finder *Finder) Query(options ...Option) (result map[string][]string, err 
 		currentRequestURL = response.Request.URL
 	})
 
-	c.OnHTML("body", func(el *colly.HTMLElement) {
-		for _, dom := range finder.DOM {
-			selection := el.DOM.Find(dom.Selector)
-			selection.Each(func(i int, sel *goquery.Selection) {
+	for group, domes := range finder.Groups {
+		c.OnHTML(group, func(el *colly.HTMLElement) {
+			var ret = make(map[string]string)
+			for _, dom := range domes {
+				sel := el.DOM.Find(dom.Selector)
 				if dom.Attr != "" {
-					result[dom.Name] = append(result[dom.Name], dom.getAttr(sel))
-					return
+					ret[dom.Name] = dom.getAttr(sel.First())
+					continue
 				}
-				result[dom.Name] = append(result[dom.Name], dom.getContent(currentRequestURL, sel, c.Clone()))
-			})
-		}
-	})
+				ret[dom.Name] = dom.getContent(currentRequestURL, sel.First(), c.Clone())
+			}
+			result = append(result, ret)
+		})
+	}
 
 	err = c.Visit(finder.Link)
 	return
 }
 
-func Query(options ...Option) (result map[string][]string, err error) {
+func Query(options ...Option) (result []map[string]string, err error) {
 	finder := new(Finder)
 	return finder.Query(options...)
 }
