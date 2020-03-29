@@ -7,9 +7,6 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 type App struct {
@@ -59,18 +56,4 @@ func Start(options ...Option) error {
 	}
 
 	return app.Start(app.Addr)
-}
-
-func Graceful(f func()) {
-	go func() {
-		s := make(chan os.Signal, 1)
-		done := make(chan bool, 1)
-		signal.Notify(s, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-		go func() {
-			<-s
-			f()
-			done <- true
-		}()
-		<-done
-	}()
 }
