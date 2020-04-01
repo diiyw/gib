@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"github.com/diiyw/gib/text"
+	"github.com/diiyw/gib/gos"
 	"time"
 )
 
@@ -29,7 +29,7 @@ func DesEncrypt(originData []byte, key []byte, expired time.Time) ([]byte, error
 		return nil, err
 	}
 	originData = append(originData, '-')
-	originData = append(originData, []byte(expired.Format(text.DateFormat))...)
+	originData = append(originData, []byte(expired.Format(gos.DateFormat))...)
 	originData = PKCS5Padding(originData, block.BlockSize())
 	blockMode := cipher.NewCBCEncrypter(block, key)
 	cryptData := make([]byte, len(originData))
@@ -55,7 +55,7 @@ func DesDecrypt(cryptData []byte, key []byte) ([]byte, error) {
 	if len(bb) < 2 {
 		return nil, ContentError
 	}
-	t, err := time.Parse(text.DateFormat, string(bb[1]))
+	t, err := time.Parse(gos.DateFormat, string(bb[1]))
 
 	if err != nil {
 		return nil, err
