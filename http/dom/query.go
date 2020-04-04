@@ -1,8 +1,10 @@
 package dom
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"net/url"
+	"strconv"
 )
 
 type Finder struct {
@@ -30,18 +32,28 @@ func (finder *Finder) Query(options ...Option) (result []map[string]string, err 
 	})
 
 	for group, domes := range finder.Groups {
-		func(string, []DOM) {
-			c.OnHTML(group, func(el *colly.HTMLElement) {
-				var ret = make(map[string]string)
-				for _, dom := range domes {
-					sel := el.DOM.Find(dom.Selector)
-					if dom.Attr != "" {
-						ret[dom.Name] = dom.getAttr(sel.First())
-						continue
-					}
-					ret[dom.Name] = dom.getContent(currentRequestURL, sel.First(), c.Clone())
+		func(tag string, docs []DOM) {
+			c.OnHTML(tag, func(el *colly.HTMLElement) {
+				var ret = make(map[string]string, 0)
+				for _, doc := range docs {
+					func(dom DOM) {
+						next := el.DOM.Find(dom.Selector)
+						next.Each(func(i int, nextSel *goquery.Selection) {
+							key := dom.Name
+							if _, ok := ret[key]; ok {
+								key += "_" + strconv.Itoa(i)
+							}
+							if dom.Attr != "" && dom.Type == "text" {
+								ret[key] = dom.getAttr(nextSel.First())
+								return
+							}
+							ret[key] = dom.getContent(nextSel.First(), c.Clone(), currentRequestURL)
+						})
+					}(doc)
 				}
-				result = append(result, ret)
+				if len(ret) != 0 {
+					result = append(result, ret)
+				}
 			})
 		}(group, domes)
 	}

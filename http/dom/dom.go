@@ -16,7 +16,7 @@ type DOM struct {
 	Selector string `json:"selector"`
 }
 
-func (dom DOM) getContent(uri *url.URL, e *goquery.Selection, c *colly.Collector) string {
+func (dom DOM) getContent(e *goquery.Selection, c *colly.Collector, uri *url.URL) string {
 	switch dom.Type {
 	case "html":
 		v, _ := e.Html()
@@ -48,7 +48,7 @@ func (dom DOM) getContent(uri *url.URL, e *goquery.Selection, c *colly.Collector
 	}
 }
 
-func (dom DOM) getAttr(e *goquery.Selection) string {
-	v, _ := e.Attr(dom.Attr)
-	return v
+func (dom DOM) getAttr(e *goquery.Selection) (v string) {
+	v, _ = e.Attr(dom.Attr)
+	return
 }
