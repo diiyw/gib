@@ -30,18 +30,20 @@ func (finder *Finder) Query(options ...Option) (result []map[string]string, err 
 	})
 
 	for group, domes := range finder.Groups {
-		c.OnHTML(group, func(el *colly.HTMLElement) {
-			var ret = make(map[string]string)
-			for _, dom := range domes {
-				sel := el.DOM.Find(dom.Selector)
-				if dom.Attr != "" {
-					ret[dom.Name] = dom.getAttr(sel.First())
-					continue
+		func(string, []DOM) {
+			c.OnHTML(group, func(el *colly.HTMLElement) {
+				var ret = make(map[string]string)
+				for _, dom := range domes {
+					sel := el.DOM.Find(dom.Selector)
+					if dom.Attr != "" {
+						ret[dom.Name] = dom.getAttr(sel.First())
+						continue
+					}
+					ret[dom.Name] = dom.getContent(currentRequestURL, sel.First(), c.Clone())
 				}
-				ret[dom.Name] = dom.getContent(currentRequestURL, sel.First(), c.Clone())
-			}
-			result = append(result, ret)
-		})
+				result = append(result, ret)
+			})
+		}(group, domes)
 	}
 
 	err = c.Visit(finder.Link)
