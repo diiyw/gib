@@ -1,4 +1,4 @@
-package dom
+package html
 
 import (
 	"github.com/PuerkitoBio/goquery"
@@ -7,22 +7,22 @@ import (
 	"strconv"
 )
 
-type Finder struct {
+type Collector struct {
 	Link      string           `json:"link"`
 	UserAgent string           `json:"user_agent"`
 	Groups    map[string][]DOM `json:"groups"`
 }
 
-func (finder *Finder) Query(options ...Option) (result []map[string]string, err error) {
+func (collector *Collector) Query(options ...Option) (result []map[string]string, err error) {
 	result = make([]map[string]string, 0)
-	finder.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+	collector.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
 
 	for _, op := range options {
-		op(finder)
+		op(collector)
 	}
 
 	c := colly.NewCollector(
-		colly.UserAgent(finder.UserAgent),
+		colly.UserAgent(collector.UserAgent),
 		colly.AllowURLRevisit(),
 	)
 
@@ -31,7 +31,7 @@ func (finder *Finder) Query(options ...Option) (result []map[string]string, err 
 		currentRequestURL = response.Request.URL
 	})
 
-	for group, domes := range finder.Groups {
+	for group, domes := range collector.Groups {
 		func(tag string, docs []DOM) {
 			c.OnHTML(tag, func(el *colly.HTMLElement) {
 				var ret = make(map[string]string, 0)
@@ -58,11 +58,11 @@ func (finder *Finder) Query(options ...Option) (result []map[string]string, err 
 		}(group, domes)
 	}
 
-	err = c.Visit(finder.Link)
+	err = c.Visit(collector.Link)
 	return
 }
 
 func Query(options ...Option) (result []map[string]string, err error) {
-	finder := new(Finder)
+	finder := new(Collector)
 	return finder.Query(options...)
 }

@@ -1,2 +1,2 @@
 # utils
-private utils
+golang utils
