@@ -20,7 +20,7 @@ func Auth(username, password string) Option {
 	}
 }
 
-func Addr(host string, port int) Option {
+func Host(host string, port int) Option {
 	return func(o *Orm) {
 		o.dsn = strings.Replace(o.dsn, "localhost", host, -1)
 		o.dsn = strings.Replace(o.dsn, "3306", strconv.Itoa(port), -1)

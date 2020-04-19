@@ -1,13 +1,13 @@
 package orm
 
 import (
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
 type Orm struct {
-	*sql.DB
+	*sqlx.DB
 	driver string
 	dsn    string
 }
@@ -19,7 +19,7 @@ func Open(options ...Option) (orm *Orm, err error) {
 	for _, op := range options {
 		op(orm)
 	}
-	db, err := sql.Open(orm.driver, orm.dsn)
+	db, err := sqlx.Open(orm.driver, orm.dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,6 @@ func Open(options ...Option) (orm *Orm, err error) {
 }
 
 type Model struct {
-
 	ID       int       `db:"id"`
 	CreateAt time.Time `db:"create_at"`
 	UpdateAt time.Time `db:"update_at"`
