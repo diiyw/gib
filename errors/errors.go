@@ -13,12 +13,12 @@ func Throw(options ...Option) error {
 
 // Error is a trivial implementation of error.
 type Error struct {
-	C       int
-	Message string
+	C int    `json:"code"`
+	M string `json:"message"`
 }
 
 func (e *Error) Error() string {
-	return e.Message
+	return e.M
 }
 
 func (e *Error) Code() int {
