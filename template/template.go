@@ -1,7 +1,7 @@
 package template
 
 import (
-	"github.com/diiyw/gib/cache"
+	"github.com/diiyw/gib/gache"
 	"github.com/diiyw/gib/gos"
 	"github.com/diiyw/gib/text"
 	"github.com/gobuffalo/packr/v2"
@@ -18,7 +18,7 @@ type Template struct {
 	Box *packr.Box
 	*template.Template
 	// 缓存
-	Cache  *cache.Cache
+	Cache  *gache.Cache
 	Prefix string
 	Files  []string
 	Data   map[string]interface{}
@@ -28,7 +28,7 @@ type Template struct {
 func New(box *packr.Box, options ...Option) *Template {
 	t := &Template{
 		Box:      box,
-		Cache:    cache.New(),
+		Cache:    gache.New(),
 		Prefix:   "template-",
 		Files:    make([]string, 0),
 		Template: template.New("template"),

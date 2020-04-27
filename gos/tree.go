@@ -1,7 +1,6 @@
-package filesystem
+package gos
 
 import (
-	"github.com/diiyw/gib/gos"
 	"io/ioutil"
 )
 
@@ -23,7 +22,7 @@ func Dirs(dirPath string) (files []FileInfo, err error) {
 		var file FileInfo
 		file.Name = f.Name()
 		file.Size = f.Size()
-		file.ModeTime = f.ModTime().Format(gos.DateTimeFormat)
+		file.ModeTime = f.ModTime().Format(DateTimeFormat)
 		file.Mode = f.Mode().String()
 		file.IsDir = f.IsDir()
 		files = append(files, file)

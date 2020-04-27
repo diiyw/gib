@@ -1,4 +1,4 @@
-package errors
+package gerr
 
 type Option func(err *Error)
 

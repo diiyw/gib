@@ -1,9 +1,9 @@
-package web
+package geb
 
 import (
 	"errors"
 	"fmt"
-	"github.com/diiyw/gib/log"
+	"github.com/diiyw/gib/gog"
 	"net/url"
 	"runtime"
 )
@@ -19,8 +19,8 @@ func Recover(next HandlerFunc) HandlerFunc {
 				length := runtime.Stack(stack, false)
 
 				panicString := fmt.Sprintf("Error: %v \n %s", err, stack[:length])
-				log.Stdout(panicString)
-				log.File(panicString)
+				gog.Stdout(panicString)
+				gog.File(panicString)
 
 			}
 		}()
@@ -33,7 +33,7 @@ func RequestLogger(next HandlerFunc) HandlerFunc {
 	return func(c Context) error {
 		params := c.QueryParams()
 		formParams, _ := c.FormParams()
-		log.File(map[string]interface{}{
+		gog.File(map[string]interface{}{
 			"ip":   c.RealIP(),
 			"uri":  c.Request().RequestURI,
 			"data": append([]url.Values{}, params, formParams),

@@ -3,8 +3,8 @@ package jwt
 import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/diiyw/gib/hash"
-	"github.com/diiyw/gib/web"
+	"github.com/diiyw/gib/gash"
+	"github.com/diiyw/gib/geb"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -20,7 +20,7 @@ func init() {
 		JWToken = jwt.New(jwt.SigningMethodHS256)
 	}
 	if key == "" {
-		key = hash.MD5(hash.UUID())
+		key = gash.MD5(gash.UUID())
 	}
 }
 
@@ -40,7 +40,7 @@ func Middleware() echo.MiddlewareFunc {
 	return middleware.JWT([]byte(key))
 }
 
-func GetMapClaims(c web.Context) (MapClaims, error) {
+func GetMapClaims(c geb.Context) (MapClaims, error) {
 	u := c.Get("user")
 	user, ok := u.(*jwt.Token)
 	if !ok {

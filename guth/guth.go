@@ -1,13 +1,17 @@
 package guth
 
-type Guth struct {
-	c *Config
+type Guth interface {
+	GetRedirectURL(state string) string
+	SetAccessToken(code string) error
+	GetUserInfo(v interface{}) error
 }
 
-func NewGuth(options ...Option) *Guth {
-	g := &Guth{}
-	for _, opt := range options {
-		opt(g)
+func Github(id, key, redirectURL string) Guth {
+	return &GithubAuth{
+		Config{
+			AppID:       id,
+			AppKey:      key,
+			RedirectURL: redirectURL,
+		},
 	}
-	return g
 }

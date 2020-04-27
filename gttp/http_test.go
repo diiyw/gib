@@ -1,4 +1,4 @@
-package http
+package gttp
 
 import (
 	"encoding/json"

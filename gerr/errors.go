@@ -1,8 +1,8 @@
-package errors
+package gerr
 
 var defaultError = new(Error)
 
-func Throw(options ...Option) error {
+func New(options ...Option) error {
 
 	for _, option := range options {
 		option(defaultError)

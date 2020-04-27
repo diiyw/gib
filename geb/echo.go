@@ -1,7 +1,7 @@
-package web
+package geb
 
 import (
-	"github.com/diiyw/gib/errors"
+	"github.com/diiyw/gib/gerr"
 	"github.com/diiyw/gib/restful"
 	"github.com/diiyw/gib/template"
 	"github.com/gobuffalo/packr/v2"
@@ -38,7 +38,7 @@ func Start(options ...Option) error {
 		case *echo.HTTPError:
 			code = e.Code
 			errorString = e.Message
-		case *errors.Error:
+		case *gerr.Error:
 			code = e.Code()
 			errorString = e.Error()
 		default:

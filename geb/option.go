@@ -1,4 +1,4 @@
-package web
+package geb
 
 import (
 	"github.com/labstack/echo-contrib/prometheus"

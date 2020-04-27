@@ -1,4 +1,4 @@
-package hash
+package gash
 
 import (
 	"github.com/satori/go.uuid"

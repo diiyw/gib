@@ -1,4 +1,4 @@
-package filesystem
+package gos
 
 import (
 	"net/url"

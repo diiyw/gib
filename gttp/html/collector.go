@@ -4,7 +4,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"net/url"
-	"strconv"
 )
 
 type Collector struct {
@@ -13,8 +12,8 @@ type Collector struct {
 	Groups    map[string][]DOM `json:"groups"`
 }
 
-func (collector *Collector) Query(options ...Option) (result []map[string]string, err error) {
-	result = make([]map[string]string, 0)
+func (collector *Collector) Query(options ...Option) (result []map[string]interface{}, err error) {
+	result = make([]map[string]interface{}, 0)
 	collector.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
 
 	for _, op := range options {
@@ -34,21 +33,23 @@ func (collector *Collector) Query(options ...Option) (result []map[string]string
 	for group, domes := range collector.Groups {
 		func(tag string, docs []DOM) {
 			c.OnHTML(tag, func(el *colly.HTMLElement) {
-				var ret = make(map[string]string, 0)
+				var ret = make(map[string]interface{}, 0)
 				for _, doc := range docs {
 					func(dom DOM) {
 						next := el.DOM.Find(dom.Selector)
+						var nextReturn = make([]string, 0)
 						next.Each(func(i int, nextSel *goquery.Selection) {
-							key := dom.Name
-							if _, ok := ret[key]; ok {
-								key += "_" + strconv.Itoa(i)
-							}
 							if dom.Attr != "" && dom.Type == "text" {
-								ret[key] = dom.getAttr(nextSel.First())
+								nextReturn = append(nextReturn, dom.getAttr(nextSel.First()))
 								return
 							}
-							ret[key] = dom.getContent(nextSel.First(), c.Clone(), currentRequestURL)
+							nextReturn = append(nextReturn, dom.getContent(nextSel.First(), c.Clone(), currentRequestURL))
 						})
+						if len(nextReturn) != 1 {
+							ret[dom.Name] = nextReturn
+						} else {
+							ret[dom.Name] = nextReturn[0]
+						}
 					}(doc)
 				}
 				if len(ret) != 0 {
@@ -62,7 +63,7 @@ func (collector *Collector) Query(options ...Option) (result []map[string]string
 	return
 }
 
-func Query(options ...Option) (result []map[string]string, err error) {
+func Query(options ...Option) (result []map[string]interface{}, err error) {
 	finder := new(Collector)
 	return finder.Query(options...)
 }

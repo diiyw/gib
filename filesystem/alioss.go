@@ -2,10 +2,11 @@ package filesystem
 
 import (
 	"bytes"
+	"github.com/diiyw/gib/gos"
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/diiyw/gib/http"
+	"github.com/diiyw/gib/gttp"
 )
 
 // AliOss the aliyun oss storage
@@ -33,11 +34,11 @@ func (o *AliOss) UploadFromURL(imgURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	img, err := http.Do(http.Url(imgURL))
+	img, err := gttp.Do(gttp.Url(imgURL))
 	if err != nil {
 		return nil, err
 	}
-	filename := GetFilename(imgURL)
+	filename := gos.GetFilename(imgURL)
 	if err := c.PutObject(filename, bytes.NewReader(img), oss.ContentType(o.ContentType)); err != nil {
 		time.Sleep(time.Second)
 		if err := c.PutObject(filename, bytes.NewReader(img), oss.ContentType(o.ContentType)); err != nil {
