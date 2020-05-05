@@ -20,7 +20,3 @@ type Error struct {
 func (e *Error) Error() string {
 	return e.M
 }
-
-func (e *Error) Code() int {
-	return e.C
-}

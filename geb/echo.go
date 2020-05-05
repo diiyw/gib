@@ -13,6 +13,7 @@ type App struct {
 	*echo.Echo
 	Addr     string
 	Template *template.Template
+	Config   map[string][]byte
 }
 
 type Context = echo.Context
@@ -25,6 +26,7 @@ var app = &App{
 	Echo:     echo.New(),
 	Addr:     ":8080",
 	Template: template.New(packr.New("app", "template")),
+	Config:   make(map[string][]byte),
 }
 
 func Start(options ...Option) error {
@@ -39,7 +41,7 @@ func Start(options ...Option) error {
 			code = e.Code
 			errorString = e.Message
 		case *gerr.Error:
-			code = e.Code()
+			code = e.C
 			errorString = e.Error()
 		default:
 			code = 500
