@@ -21,13 +21,10 @@ func Renderer() Option {
 	}
 }
 
-func CORS(allowOrigins, allowMethods []string) Option {
+func CORS(config middleware.CORSConfig) Option {
 	return func(app *App) {
 		// CORS
-		app.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: allowOrigins,
-			AllowMethods: allowMethods,
-		}))
+		app.Use(middleware.CORSWithConfig(config))
 	}
 }
 
