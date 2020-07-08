@@ -35,7 +35,7 @@ func (collector *Collector) Query(options ...Option) (result []map[string]interf
 			c.OnHTML(tag, func(el *colly.HTMLElement) {
 				var ret = make(map[string]interface{}, 0)
 				for _, doc := range docs {
-					func(dom DOM) {
+					nextRet := func(dom DOM) []string {
 						next := el.DOM.Find(dom.Selector)
 						var nextReturn = make([]string, 0)
 						next.Each(func(i int, nextSel *goquery.Selection) {
@@ -45,12 +45,13 @@ func (collector *Collector) Query(options ...Option) (result []map[string]interf
 							}
 							nextReturn = append(nextReturn, dom.getContent(nextSel.First(), c.Clone(), currentRequestURL))
 						})
-						if len(nextReturn) != 1 {
-							ret[dom.Name] = nextReturn
-						} else {
-							ret[dom.Name] = nextReturn[0]
-						}
+						return nextReturn
 					}(doc)
+					if len(nextRet) != 1 {
+						ret[doc.Name] = nextRet
+					} else {
+						ret[doc.Name] = nextRet[0]
+					}
 				}
 				if len(ret) != 0 {
 					result = append(result, ret)
