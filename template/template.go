@@ -77,6 +77,9 @@ func (tpl *Template) Render(w io.Writer, name string, data interface{}, c echo.C
 			}
 			return ""
 		},
+		"pathinfo": func() string {
+			return c.Path()
+		},
 		"datetime": func(t time.Time) string {
 			return t.Format(gos.DateTimeFormat)
 		},
