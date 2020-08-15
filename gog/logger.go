@@ -49,6 +49,7 @@ type FileLogger struct {
 	Filename string `json:"-"`
 	Datetime string `json:"datetime"`
 	Time     int64  `json:"time"`
+	withRaw  bool   `json:"-"`
 }
 
 func (logger *FileLogger) Log() (err error) {
@@ -59,9 +60,16 @@ func (logger *FileLogger) Log() (err error) {
 	defer func() {
 		_ = f.Close()
 	}()
-	b, err := json.Marshal(logger)
-	if err != nil {
-		Stdout(err)
+	var b []byte
+	if !logger.withRaw {
+		b, err = json.Marshal(logger)
+		if err != nil {
+			Stdout(err)
+		}
+	} else {
+		if m, ok := logger.Message.(string); ok {
+			b = []byte(m)
+		}
 	}
 	_, err = f.Write(b)
 	_, err = f.Write([]byte("\r\n"))
