@@ -15,7 +15,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/diiyw/h2md v1.1.4
+	github.com/diiyw/h2md v1.1.5
 	github.com/etcd-io/etcd v3.3.18+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gobuffalo/packr/v2 v2.7.1
