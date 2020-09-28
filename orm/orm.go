@@ -1,38 +1,46 @@
 package orm
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
-	"time"
+	"github.com/diiyw/gib/gache"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type Orm struct {
-	*sqlx.DB
-	driver string
-	dsn    string
+	*gorm.DB
+	dsn string
 }
 
 func Open(options ...Option) (orm *Orm, err error) {
 	orm = new(Orm)
-	orm.driver = "mysql"
 	orm.dsn = "root:password@tcp(localhost:3306)/test?charset=utf8&parseTime=True&loc=Local"
 	for _, op := range options {
 		op(orm)
 	}
-	db, err := sqlx.Open(orm.driver, orm.dsn)
+	db, err := gorm.Open(mysql.Open(orm.dsn), &gorm.Config{})
+	orm.DB = db
 	if err != nil {
 		return nil, err
 	}
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-	return &Orm{DB: db}, nil
+	return orm, nil
 }
 
-type Model struct {
-	ID       int       `db:"id"`
-	CreateAt time.Time `db:"create_at"`
-	UpdateAt time.Time `db:"update_at"`
-	DeleteAt time.Time `db:"delete_at"`
-	Status   int       `db:"status"`
+var connCache *gache.Cache
+
+func init() {
+	if connCache == nil {
+		connCache = gache.New()
+	}
+}
+
+func Mysql(name string, options ...Option) *Orm {
+	if connCache != nil && connCache.Exits(name) {
+		return connCache.Get(name).(*Orm)
+	}
+	o, err := Open(options...)
+	if err != nil {
+		panic(err)
+	}
+	connCache.Set(name, o)
+	return o
 }

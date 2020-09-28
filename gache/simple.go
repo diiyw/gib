@@ -19,7 +19,7 @@ type Cache struct {
 }
 
 func New() *Cache {
-	return &Cache{&sync.Map{},}
+	return &Cache{&sync.Map{}}
 }
 
 // 设置值
@@ -54,8 +54,10 @@ func (c *Cache) Expired(key string, t time.Duration) {
 
 // 值是否存在
 func (c *Cache) Exits(key string) bool {
-
 	if v, ok := c.keyValue.Load(key); ok {
+		if v.(*data).expired == -1 {
+			return true
+		}
 		if v.(*data).created.Add(v.(*data).expired).Before(time.Now()) {
 			// 过期了
 			c.keyValue.Delete(key)

@@ -10,6 +10,9 @@ func New(options ...Option) error {
 
 	return defaultError
 }
+func NewError(code int, message string) Error {
+	return Error{code, message}
+}
 
 // Error is a trivial implementation of error.
 type Error struct {

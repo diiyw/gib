@@ -7,12 +7,6 @@ import (
 
 type Option func(o *Orm)
 
-func Driver(d string) Option {
-	return func(o *Orm) {
-		o.driver = d
-	}
-}
-
 func Auth(username, password string) Option {
 	return func(o *Orm) {
 		o.dsn = strings.Replace(o.dsn, "root", username, -1)
