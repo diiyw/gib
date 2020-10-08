@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -11,21 +12,24 @@ import (
 	"reflect"
 )
 
-var JWToken *jwt.Token
-
-var key string
+type Token = jwt.Token
 
 type MapClaims = jwt.MapClaims
+
+var JWToken *Token
+
+var key string
 
 type Config struct {
 	SigningMethod string
 	SigningKey    interface{}
 	Claims        jwt.Claims
 	// Header lookup
-	TokenLookup  string
-	ContextKey   string
-	ErrorHandler func(c geb.Context, err error) error
-	keyFunc      func(t *jwt.Token) (interface{}, error)
+	TokenLookup    string
+	ContextKey     string
+	ErrorHandler   func(c geb.Context, err error) error
+	SuccessHandler func(token *Token) error
+	keyFunc        func(t *Token) (interface{}, error)
 }
 
 const (
@@ -53,57 +57,75 @@ func GetToken(options ...Option) (string, error) {
 	return t, nil
 }
 
-func Verify(config Config) echo.MiddlewareFunc {
+func Verify(token string, config Config) error {
+	if config.SigningKey == nil {
+		config.SigningKey = []byte(key)
+	}
+	if config.SigningMethod == "" {
+		config.SigningMethod = AlgorithmHS256
+	}
+	config.ContextKey = "user"
+	config.Claims = jwt.MapClaims{}
+	config.keyFunc = func(t *Token) (interface{}, error) {
+		// Check the signing method
+		if t.Method.Alg() != config.SigningMethod {
+			return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
+		}
+		return config.SigningKey, nil
+	}
+	var err error
+	jwtToken := new(Token)
+	if _, ok := config.Claims.(jwt.MapClaims); ok {
+		jwtToken, err = jwt.Parse(token, config.keyFunc)
+	} else {
+		t := reflect.ValueOf(config.Claims).Type().Elem()
+		claims := reflect.New(t).Interface().(jwt.Claims)
+		jwtToken, err = jwt.ParseWithClaims(token, claims, config.keyFunc)
+	}
+	if err == nil && jwtToken.Valid {
+		if config.SuccessHandler != nil {
+			return config.SuccessHandler(jwtToken)
+		}
+	}
+	return err
+}
+
+func VerifyMiddleware(config Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		if config.SigningKey == nil {
-			config.SigningKey = []byte(key)
-		}
-		if config.SigningMethod == "" {
-			config.SigningMethod = AlgorithmHS256
-		}
-		config.ContextKey = "user"
-		config.Claims = jwt.MapClaims{}
-		config.keyFunc = func(t *jwt.Token) (interface{}, error) {
-			// Check the signing method
-			if t.Method.Alg() != config.SigningMethod {
-				return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
-			}
-			return config.SigningKey, nil
-		}
 		return func(c echo.Context) error {
-			var err error
-			token := c.Request().Header.Get(config.TokenLookup)
-			jToken := new(jwt.Token)
-			// Issue #647, #656
-			if _, ok := config.Claims.(jwt.MapClaims); ok {
-				jToken, err = jwt.Parse(token, config.keyFunc)
-			} else {
-				t := reflect.ValueOf(config.Claims).Type().Elem()
-				claims := reflect.New(t).Interface().(jwt.Claims)
-				jToken, err = jwt.ParseWithClaims(token, claims, config.keyFunc)
+			if config.SuccessHandler == nil {
+				config.SuccessHandler = func(token *Token) error {
+					// Store user information from token into context.
+					c.Set(config.ContextKey, token)
+					return next(c)
+				}
 			}
-			if err == nil && jToken.Valid {
-				// Store user information from token into context.
-				c.Set(config.ContextKey, jToken)
-				return next(c)
+			err := Verify(c.Request().Header.Get(config.TokenLookup), config)
+			if config.ErrorHandler == nil {
+				return &echo.HTTPError{
+					Code:     http.StatusUnauthorized,
+					Message:  "invalid or expired jwt",
+					Internal: err,
+				}
 			}
-			if config.ErrorHandler != nil {
-				return config.ErrorHandler(c, err)
-			}
-			return &echo.HTTPError{
-				Code:     http.StatusUnauthorized,
-				Message:  "invalid or expired jwt",
-				Internal: err,
-			}
+			return config.ErrorHandler(c, err)
 		}
 	}
 }
 
-func GetData(c geb.Context) (map[string]interface{}, error) {
+func GetMapData(c geb.Context) (v map[string]interface{}, err error) {
 	u := c.Get("user")
-	user, ok := u.(*jwt.Token)
+	user, ok := u.(*Token)
 	if !ok {
 		return nil, errors.New("token occupied")
 	}
-	return user.Claims.(MapClaims), nil
+	if err := GetClaimsData(user.Claims, &v); err != nil {
+		return nil, err
+	}
+	return
+}
+
+func GetClaimsData(claims jwt.Claims, v interface{}) error {
+	b, _ := json.Marshal(claims)
+	return json.Unmarshal(b, v)
 }
