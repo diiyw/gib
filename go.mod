@@ -35,7 +35,7 @@ require (
 	github.com/prometheus/client_golang v1.3.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/soheilhy/cmux v0.1.4 // indirect
-	github.com/tencentcloud/tencentcloud-sdk-go v3.0.119+incompatible
+	github.com/tencentcloud/tencentcloud-sdk-go v1.0.30
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/ugorji/go v1.1.7 // indirect

@@ -1,33 +1,35 @@
 package sms
 
 import (
+	"errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	sms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20190711"
 )
 
 type TencentSMS struct {
+	appID      string
 	credential *common.Credential
 	profile    *profile.ClientProfile
 	client     *sms.Client
 }
 
-func NewTencentSMS(secretId, secretKey string) (*TencentSMS, error) {
+func NewTencentSMS(secretId, secretKey string, appID string) (*TencentSMS, error) {
 	credential := common.NewCredential(
 		secretId,
 		secretKey,
 	)
 
 	cpf := profile.NewClientProfile()
-	cpf.HttpProfile.ReqMethod = "GET"
-	cpf.HttpProfile.ReqTimeout = 5
+	cpf.HttpProfile.ReqTimeout = 10
 	cpf.SignMethod = "HmacSHA1"
 
-	client, err := sms.NewClient(credential, "", cpf)
+	client, err := sms.NewClient(credential, "ap-guangzhou", cpf)
 	if err != nil {
 		return nil, err
 	}
 	return &TencentSMS{
+		appID:      appID,
 		credential: credential,
 		profile:    cpf,
 		client:     client,
@@ -35,23 +37,22 @@ func NewTencentSMS(secretId, secretKey string) (*TencentSMS, error) {
 }
 
 func (t *TencentSMS) Send(templateId string, params, phones []string) error {
-	smsRequest := sms.NewSendSmsRequest()
-
-	var phoneCache []*string
-	for _, phone := range phones {
-		phoneCache = append(phoneCache, &phone)
+	req := sms.NewSendSmsRequest()
+	req.SmsSdkAppid = common.StringPtr(t.appID)
+	for i, phone := range phones {
+		phones[i] = "86" + phone
 	}
+	req.PhoneNumberSet = common.StringPtrs(phones)
+	req.TemplateParamSet = common.StringPtrs(params)
+	req.TemplateID = common.StringPtr(templateId)
 
-	var paramsCache []*string
-	for _, param := range params {
-		paramsCache = append(paramsCache, &param)
-	}
-
-	smsRequest.PhoneNumberSet = paramsCache
-	smsRequest.TemplateID = &templateId
-	_, err := t.client.SendSms(smsRequest)
+	resp, err := t.client.SendSms(req)
 	if err != nil {
 		return err
 	}
+	if *resp.Response.SendStatusSet[0].Code != "Ok" {
+		return errors.New(*resp.Response.SendStatusSet[0].Message)
+	}
+	_ = resp.Response
 	return nil
 }

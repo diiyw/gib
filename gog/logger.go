@@ -94,6 +94,7 @@ func File(v interface{}, options ...Option) {
 		logger.Filename += "_" + strconv.Itoa(i) + ".log"
 		fi, err := os.Stat(logger.Dir + "/" + logger.Filename)
 		if err != nil {
+			Stdout(err)
 			break
 		}
 		if fi.Size() < logger.Size {

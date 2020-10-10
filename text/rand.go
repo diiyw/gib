@@ -17,8 +17,14 @@ func Rand(seed []byte, length int) string {
 	return sb.String()
 }
 
-// GenRandLetter generate rand letters
+// RandLetter generate rand letters
 func RandLetters(length int) string {
 	letters := []byte("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM0123456789")
+	return Rand(letters, length)
+}
+
+// RandInt generate rand number
+func RandInt(length int) string {
+	letters := []byte("1234567890")
 	return Rand(letters, length)
 }

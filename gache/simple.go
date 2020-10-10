@@ -27,6 +27,10 @@ func (c *Cache) Set(key string, value interface{}) {
 	c.keyValue.Store(key, &data{time.Now(), -1, value})
 }
 
+func (c *Cache) SetEx(key string, value interface{}, expire time.Duration) {
+	c.keyValue.Store(key, &data{time.Now(), expire, value})
+}
+
 // 取值
 func (c *Cache) Get(key string) interface{} {
 
@@ -63,7 +67,7 @@ func (c *Cache) Exits(key string) bool {
 			c.keyValue.Delete(key)
 			return false
 		}
-		return v.(*data).value == nil
+		return v.(*data).value != nil
 	}
 	return false
 }
