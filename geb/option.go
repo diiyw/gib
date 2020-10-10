@@ -32,3 +32,9 @@ func Prometheus(name string, customMetricsList ...[]*prometheus.Metric) Option {
 		p.Use(app.Echo)
 	}
 }
+
+func Static(prefix, dir string) Option {
+	return func(app *App) {
+		app.Static(prefix, dir)
+	}
+}

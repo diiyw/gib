@@ -5,7 +5,7 @@ import "time"
 const (
 	DateFormat     = "2006-01-02"
 	DateTimeFormat = "2006-01-02 15:04:05"
-	UndefinedTime       = "0000-00-00 00:00:00"
+	UndefinedTime  = "0000-00-00 00:00:00"
 )
 
 // Date return now date
