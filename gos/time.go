@@ -1,6 +1,9 @@
 package gos
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 const (
 	DateFormat     = "2006-01-02"
@@ -33,4 +36,17 @@ func ParseTime(layout, v string) time.Time {
 
 func UnixTime(unix int64) time.Time {
 	return time.Unix(unix, 0)
+}
+
+func NowUnixString() string {
+	return UnixString(time.Now().Unix())
+}
+
+func UnixString(unix int64) string {
+	return strconv.FormatInt(unix, 10)
+}
+
+func UnixStringTime(unix string) time.Time {
+	t, _ := strconv.ParseInt(unix, 10, 64)
+	return UnixTime(t)
 }

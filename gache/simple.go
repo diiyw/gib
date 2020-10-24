@@ -33,7 +33,6 @@ func (c *Cache) SetEx(key string, value interface{}, expire time.Duration) {
 
 // 取值
 func (c *Cache) Get(key string) interface{} {
-
 	if v, ok := c.keyValue.Load(key); ok {
 		if v.(*data).created.Add(v.(*data).expired).Before(time.Now()) && v.(*data).expired != -1 {
 			c.keyValue.Delete(key)

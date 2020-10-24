@@ -28,7 +28,7 @@ type Config struct {
 	TokenLookup    string
 	ContextKey     string
 	ErrorHandler   func(c geb.Context, err error) error
-	SuccessHandler func(token *Token) error
+	SuccessHandler func(c geb.Context, token *Token) error
 	keyFunc        func(t *Token) (interface{}, error)
 }
 
@@ -57,14 +57,16 @@ func GetToken(options ...Option) (string, error) {
 	return t, nil
 }
 
-func Verify(token string, config Config) error {
+func Verify(token string, config *Config) (*jwt.Token, error) {
 	if config.SigningKey == nil {
 		config.SigningKey = []byte(key)
 	}
 	if config.SigningMethod == "" {
 		config.SigningMethod = AlgorithmHS256
 	}
-	config.ContextKey = "user"
+	if config.ContextKey == "" {
+		config.ContextKey = "user"
+	}
 	config.Claims = jwt.MapClaims{}
 	config.keyFunc = func(t *Token) (interface{}, error) {
 		// Check the signing method
@@ -83,32 +85,27 @@ func Verify(token string, config Config) error {
 		jwtToken, err = jwt.ParseWithClaims(token, claims, config.keyFunc)
 	}
 	if err == nil && jwtToken.Valid {
-		if config.SuccessHandler != nil {
-			return config.SuccessHandler(jwtToken)
-		}
+		return jwtToken, nil
 	}
-	return err
+	return nil, err
 }
 
-func VerifyMiddleware(config Config) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			if config.SuccessHandler == nil {
-				config.SuccessHandler = func(token *Token) error {
-					// Store user information from token into context.
-					c.Set(config.ContextKey, token)
-					return next(c)
+func VerifyMiddleware(config *Config) geb.MiddlewareFunc {
+	return func(next geb.HandlerFunc) geb.HandlerFunc {
+		return func(c geb.Context) error {
+			token, err := Verify(c.Request().Header.Get(config.TokenLookup), config)
+			if err != nil {
+				if config.ErrorHandler == nil {
+					return &echo.HTTPError{
+						Code:     http.StatusUnauthorized,
+						Message:  "invalid or expired jwt",
+						Internal: err,
+					}
 				}
+				return config.ErrorHandler(c, err)
 			}
-			err := Verify(c.Request().Header.Get(config.TokenLookup), config)
-			if config.ErrorHandler == nil {
-				return &echo.HTTPError{
-					Code:     http.StatusUnauthorized,
-					Message:  "invalid or expired jwt",
-					Internal: err,
-				}
-			}
-			return config.ErrorHandler(c, err)
+			c.Set(config.ContextKey, token)
+			return next(c)
 		}
 	}
 }
