@@ -1,11 +1,12 @@
 package geb
 
 import (
-	"errors"
 	"fmt"
 	"github.com/diiyw/gib/gog"
+	"github.com/labstack/echo/v4"
 	"net/url"
 	"runtime"
+	"strconv"
 )
 
 // Recover panic log
@@ -42,13 +43,31 @@ func RequestLogger(next HandlerFunc) HandlerFunc {
 	}
 }
 
-func SimpleKeyAuth(key string) MiddlewareFunc {
+func KeyAuth(key string, f func(c Context) error) MiddlewareFunc {
 	return func(next HandlerFunc) HandlerFunc {
 		return func(c Context) error {
 			if c.FormValue("key") != key {
-				return errors.New("key uncorrected")
+				return f(c)
 			}
 			return next(c)
 		}
+	}
+}
+
+func FormatPageParams(next HandlerFunc) HandlerFunc {
+	return func(c echo.Context) error {
+		page, _ := strconv.ParseInt(c.FormValue("page"), 10, 64)
+		if page == 0 {
+			page = 1
+		}
+		c.Set("page", int(page))
+		limit, _ := strconv.ParseInt(c.FormValue("limit"), 10, 64)
+		if limit == 0 {
+			limit = 10
+		}
+		c.Set("limit", int(limit))
+		offset := (page - 1) * limit
+		c.Set("offset", int(offset))
+		return next(c)
 	}
 }

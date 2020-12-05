@@ -104,22 +104,50 @@ func VerifyMiddleware(config *Config) geb.MiddlewareFunc {
 				}
 				return config.ErrorHandler(c, err)
 			}
+			var user = map[string]interface{}{}
+			if err := GetClaimsData(token.Claims, &user); err != nil {
+				return err
+			}
 			c.Set(config.ContextKey, token)
+			c.Set(config.ContextKey+"_map", user)
 			return next(c)
 		}
 	}
 }
 
-func GetMapData(c geb.Context) (v map[string]interface{}, err error) {
+func GetUserClaim(c geb.Context) (*Token, error) {
 	u := c.Get("user")
-	user, ok := u.(*Token)
-	if !ok {
-		return nil, errors.New("token occupied")
+	if user, ok := u.(*Token); ok {
+		return user, nil
+	}
+	return nil, errors.New("token occupied")
+}
+
+func GetMapData(c geb.Context) (v map[string]interface{}, err error) {
+	user, err := GetUserClaim(c)
+	if err != nil {
+		return nil, err
 	}
 	if err := GetClaimsData(user.Claims, &v); err != nil {
 		return nil, err
 	}
 	return
+}
+
+func GetUserID(c geb.Context) int {
+	var user struct {
+		Id int
+	}
+	_ = GetCustomData(c, &user)
+	return user.Id
+}
+
+func GetCustomData(c geb.Context, v interface{}) error {
+	user, err := GetUserClaim(c)
+	if err != nil {
+		return err
+	}
+	return GetClaimsData(user.Claims, &v)
 }
 
 func GetClaimsData(claims jwt.Claims, v interface{}) error {

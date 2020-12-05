@@ -44,3 +44,20 @@ func Mysql(name string, options ...Option) *Orm {
 	connCache.Set(name, o)
 	return o
 }
+
+// EqualNotEmptyCondition 不为空就添加等于条件
+func (orm *Orm) EqualNotEmptyCondition(cond map[string]string) *gorm.DB {
+	var db = orm.DB
+	for field, value := range cond {
+		if value != "" {
+			db = db.Where(field+"=?", value)
+		}
+	}
+	return db
+}
+
+// Paginate 分页
+func (orm *Orm) Paginate(page, perPage int) *gorm.DB {
+	var db = orm.DB
+	return db.Offset((page - 1) * perPage).Limit(perPage)
+}

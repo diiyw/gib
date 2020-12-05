@@ -28,7 +28,6 @@ var app = &App{
 }
 
 func Start(options ...Option) error {
-
 	app.HTTPErrorHandler = func(err error, c echo.Context) {
 		var (
 			code        int
