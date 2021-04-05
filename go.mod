@@ -46,6 +46,6 @@ require (
 	google.golang.org/genproto v0.0.0-20200108215221-bd8f9a0ef82f // indirect
 	google.golang.org/grpc v1.26.0 // indirect
 	gorm.io/driver/mysql v1.0.1
-	gorm.io/gorm v1.20.1
+	gorm.io/gorm v1.21.4
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
